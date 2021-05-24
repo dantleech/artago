@@ -24,8 +24,13 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func Application(response http.ResponseWriter, request *http.Request) {
-    response.WriteHeader(http.StatusNotFound)
-    response.Write([]byte(fmt.Sprintf("No handler found for URL: %s", request.URL)))
+    mux := http.NewServeMux()
+    mux.Handle("/artifact/upload", http.HandlerFunc(artifactUploadHandler))
+    mux.Handle("/", http.NotFoundHandler())
+    mux.ServeHTTP(response, request)
+}
+
+func artifactUploadHandler(response http.ResponseWriter, request *http.Request) {
 }
 
 

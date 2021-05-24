@@ -1,17 +1,45 @@
 package artag
 
 import (
+	"io"
+	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestUploadFile(t *testing.T) {
-    writer := httptest.NewRecorder()
-    request := httptest.NewRequest("POST", "/artifact/upload", nil)
+    pr, pw := io.Pipe()
+
+    body, err := ioutil.ReadFile("testdata/json_artifact.json")
+
+    if err != nil {
+        t.Error(err)
+    }
+
+    mWriter := multipart.NewWriter(pw)
+
+    // Why is the go function required here??
+    go func() {
+        defer mWriter.Close()
+
+        part, err := mWriter.CreateFormFile("artifact.json", "testdata/json_artifact.json")
+        part.Write(body)
+
+        if err != nil {
+            t.Error(err)
+        }
+    }()
+
+    request := httptest.NewRequest("POST", "/artifact/upload", pr)
+    response := httptest.NewRecorder()
+    request.Header.Add("Content-Type", mWriter.FormDataContentType())
+
     handler:= http.HandlerFunc(Application);
-    handler.ServeHTTP(writer, request)
-    if writer.Code != 200 {
-        t.Errorf("Expected code 200 got: %d", writer.Code)
+    handler.ServeHTTP(response, request)
+
+    if response.Code != 200 {
+        t.Errorf("Expected code 200 got: %d", response.Code)
     }
 }
