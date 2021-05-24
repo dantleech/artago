@@ -19,11 +19,11 @@ type application struct {
 
 func Start() {
     config := LoadConfig("")
-    log.Println(fmt.Sprintf("Listening for requests on `%s`", config.address))
+    log.Println(fmt.Sprintf("Listening for requests on `%s`", config.Address))
     application := application {
         config: config,
     }
-    err := http.ListenAndServe(config.address, loggingMiddleware(http.HandlerFunc(application.Application)))
+    err := http.ListenAndServe(config.Address, loggingMiddleware(http.HandlerFunc(application.Application)))
 
     if err != nil {
         log.Fatal(err)
@@ -54,14 +54,14 @@ func (a application)artifactUploadHandler(response http.ResponseWriter, request 
         }
         defer file.Close()
 
-        if _, err := os.Stat(a.config.workspacePath); os.IsNotExist(err) {
-            err := os.MkdirAll(a.config.workspacePath, 0777)
+        if _, err := os.Stat(a.config.WorkspacePath); os.IsNotExist(err) {
+            err := os.MkdirAll(a.config.WorkspacePath, 0777)
             if err != nil {
                 log.Fatal(err)
             }
         }
 
-        destFile, err := os.Create(path.Join(a.config.workspacePath, fileName))
+        destFile, err := os.Create(path.Join(a.config.WorkspacePath, fileName))
 
         if err != nil {
             log.Fatal(err)

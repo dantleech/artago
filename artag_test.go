@@ -37,7 +37,7 @@ func TestUploadFile(t *testing.T) {
     request.Header.Add("Content-Type", mWriter.FormDataContentType())
     application := application{
         config: Config {
-            workspacePath: "workspace",
+            WorkspacePath: "workspace",
         },
     }
 

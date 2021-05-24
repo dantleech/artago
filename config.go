@@ -1,26 +1,56 @@
 package main
 
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"gopkg.in/yaml.v2"
+)
+
 type Action struct {
-    Type string;
-    Params interface{};
+    Type string `yaml:"type"`;
+    Params interface{} `yaml:"params"`;
 }
 
 type Rule struct {
-    expression string;
-    actions []Action
+    Predicate string `yaml:"rule"`;
+    Actions []Action `yaml:"actions"`;
 }
 
 type Config struct {
-    address string;
-    workspacePath string;
-    rules []Rule;
+    Address string `yaml:"address"`;
+    WorkspacePath string `yaml:"workspacePath"`;
+    Rules []Rule `yaml:"rules"`;
 }
 
 func LoadConfig(path string) Config {
-    return Config{
-        address: ":8080",
-        workspacePath: "workspace",
+    if path == "" {
+        return Config{
+        	Address:       ":8080",
+        	WorkspacePath: "workspace",
+        	Rules:         []Rule{},
+        }
     }
+
+    if _, err := os.Stat(path); os.IsNotExist(err) {
+        log.Fatal(fmt.Sprintf("Config file not found at: %s", path))
+    }
+
+    rawConfig, err := ioutil.ReadFile(path)
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    config := Config{
+    }
+    e := yaml.Unmarshal([]byte(rawConfig), &config)
+    if e != nil {
+        log.Fatal(e.Error())
+    }
+
+    return config
 }
 
 
