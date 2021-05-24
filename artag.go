@@ -13,24 +13,12 @@ func main() {
     Start();
 }
 
-type config struct {
-    address string;
-    workspacePath string;
-}
-
-func loadConfig() config {
-    return config{
-        address: ":8080",
-        workspacePath: "workspace",
-    }
-}
-
 type application struct {
-    config config;
+    config Config;
 }
 
 func Start() {
-    config := loadConfig()
+    config := LoadConfig()
     log.Println(fmt.Sprintf("Listening for requests on `%s`", config.address))
     application := application {
         config: config,
