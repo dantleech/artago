@@ -1,4 +1,4 @@
-package artag
+package main
 
 import (
 	"io"

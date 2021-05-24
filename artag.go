@@ -1,9 +1,12 @@
-package artag
+package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path"
 )
 
 func Start() {
@@ -31,6 +34,32 @@ func Application(response http.ResponseWriter, request *http.Request) {
 }
 
 func artifactUploadHandler(response http.ResponseWriter, request *http.Request) {
+    request.ParseMultipartForm(32 << 20)
+    outDir := "workspace"
+
+
+    for fileName := range request.MultipartForm.File {
+        file, _, err := request.FormFile(fileName)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer file.Close()
+
+        if _, err := os.Stat(outDir); os.IsNotExist(err) {
+            err := os.MkdirAll(outDir, 0777)
+            if err != nil {
+                log.Fatal(err)
+            }
+        }
+
+        destFile, err := os.Create(path.Join(outDir, fileName))
+
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        io.Copy(destFile, file)
+    }
 }
 
 
