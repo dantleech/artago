@@ -1,18 +1,41 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"path"
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+    "os"
+    "path"
 )
 
+func main() {
+    Start();
+}
+
+type config struct {
+    address string;
+    workspacePath string;
+}
+
+func loadConfig() config {
+    return config{
+        address: ":8080",
+        workspacePath: "workspace",
+    }
+}
+
+type application struct {
+    config config;
+}
+
 func Start() {
-    address := ":8080"
-    log.Println(fmt.Sprintf("Listening for requests on `%s`", address))
-    err := http.ListenAndServe(address, loggingMiddleware(http.HandlerFunc(Application)))
+    config := loadConfig()
+    log.Println(fmt.Sprintf("Listening for requests on `%s`", config.address))
+    application := application {
+        config: config,
+    }
+    err := http.ListenAndServe(config.address, loggingMiddleware(http.HandlerFunc(application.Application)))
 
     if err != nil {
         log.Fatal(err)
@@ -26,17 +49,15 @@ func loggingMiddleware(next http.Handler) http.Handler {
     });
 }
 
-func Application(response http.ResponseWriter, request *http.Request) {
+func (a application)Application(response http.ResponseWriter, request *http.Request) {
     mux := http.NewServeMux()
-    mux.Handle("/artifact/upload", http.HandlerFunc(artifactUploadHandler))
+    mux.Handle("/artifact/upload", http.HandlerFunc(a.artifactUploadHandler))
     mux.Handle("/", http.NotFoundHandler())
     mux.ServeHTTP(response, request)
 }
 
-func artifactUploadHandler(response http.ResponseWriter, request *http.Request) {
+func (a application)artifactUploadHandler(response http.ResponseWriter, request *http.Request) {
     request.ParseMultipartForm(32 << 20)
-    outDir := "workspace"
-
 
     for fileName := range request.MultipartForm.File {
         file, _, err := request.FormFile(fileName)
@@ -45,14 +66,14 @@ func artifactUploadHandler(response http.ResponseWriter, request *http.Request) 
         }
         defer file.Close()
 
-        if _, err := os.Stat(outDir); os.IsNotExist(err) {
-            err := os.MkdirAll(outDir, 0777)
+        if _, err := os.Stat(a.config.workspacePath); os.IsNotExist(err) {
+            err := os.MkdirAll(a.config.workspacePath, 0777)
             if err != nil {
                 log.Fatal(err)
             }
         }
 
-        destFile, err := os.Create(path.Join(outDir, fileName))
+        destFile, err := os.Create(path.Join(a.config.workspacePath, fileName))
 
         if err != nil {
             log.Fatal(err)
@@ -61,5 +82,3 @@ func artifactUploadHandler(response http.ResponseWriter, request *http.Request) 
         io.Copy(destFile, file)
     }
 }
-
-

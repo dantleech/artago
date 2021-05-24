@@ -35,8 +35,13 @@ func TestUploadFile(t *testing.T) {
     request := httptest.NewRequest("POST", "/artifact/upload", pr)
     response := httptest.NewRecorder()
     request.Header.Add("Content-Type", mWriter.FormDataContentType())
+    application := application{
+        config: config {
+            workspacePath: "workspace",
+        },
+    }
 
-    handler:= http.HandlerFunc(Application);
+    handler:= http.HandlerFunc(application.Application);
     handler.ServeHTTP(response, request)
 
     if response.Code != 200 {
