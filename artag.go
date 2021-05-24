@@ -18,7 +18,7 @@ type application struct {
 }
 
 func Start() {
-    config := LoadConfig()
+    config := LoadConfig("")
     log.Println(fmt.Sprintf("Listening for requests on `%s`", config.address))
     application := application {
         config: config,
