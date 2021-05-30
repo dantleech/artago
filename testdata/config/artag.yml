@@ -1,0 +1,12 @@
+address: 127.0.0.1:7777
+rules:
+    -
+        expression: filename == "phpbench.html"
+        actions:
+            -
+                 type: copy
+                 params:
+                     destination: docs/phpbench.html
+
+
+
