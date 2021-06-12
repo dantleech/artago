@@ -1,7 +1,10 @@
 package artifact
 
 import (
+	"fmt"
 	"log"
+	"regexp"
+	"strings"
 
 	"github.com/antonmedv/expr"
 	config "github.com/dantleech/artag/config"
@@ -14,6 +17,24 @@ type Processor struct {
 }
 
 type ActionHandler func(Artifact, config.Action)
+
+func ResolveArtifactParameter(artifact Artifact, parameter string) string {
+	re := regexp.MustCompile("%.*?%")
+	return re.ReplaceAllStringFunc(parameter, func(m string) string {
+		env := map[string]interface{}{
+			"artifact": artifact,
+		}
+		e := strings.Trim(m, "%")
+		program, err := expr.Compile(e, expr.Env(env))
+
+		if err != nil {
+			log.Fatalf("Could not evaluate expression `%s`: %s", e, err)
+		}
+
+		result, err := expr.Run(program, env)
+		return fmt.Sprintf("%s", result)
+	})
+}
 
 func isRuleSatisfied(rule config.Rule, artifact Artifact) bool {
 	env := map[string]interface{}{
