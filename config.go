@@ -10,8 +10,8 @@ import (
 )
 
 type Action struct {
-	Type   string      `yaml:"type"`
-	Params interface{} `yaml:"params"`
+	Type   string                 `yaml:"type"`
+	Params map[string]interface{} `yaml:"params"`
 }
 
 type Rule struct {
@@ -59,6 +59,7 @@ func loadConfig(path string) Config {
 	}
 
 	config := Config{}
+
 	e := yaml.Unmarshal([]byte(rawConfig), &config)
 	if e != nil {
 		log.Fatal(e.Error())
