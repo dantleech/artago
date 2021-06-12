@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/dantleech/artag/action"
 	"github.com/dantleech/artag/artifact"
@@ -85,12 +87,25 @@ func (a application) artifactUploadHandler(response http.ResponseWriter, request
 			},
 		}
 
-		artifact := artifact.NewArtifactFromFile(destFile, header)
+		artifact := artifact.NewArtifactFromFile(destFile, header, resolveBuildId())
 		log.Printf("Processing file `%s` (%s)", destFilePath, artifact.Name)
 		destFile.Close()
 		p.Process(artifact)
 		os.Remove(destFilePath)
 		file.Close()
 		log.Printf("Processed: %s", artifact.Name)
+		response.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(response).Encode(UploadResponse{
+			BuildId: artifact.BuildId,
+		})
 	}
+}
+
+type UploadResponse struct {
+	BuildId string
+}
+
+func resolveBuildId() string {
+	date := time.Now()
+	return date.Format("20060102-150405")
 }

@@ -22,10 +22,15 @@ func (a Artifact) OpenFile() *os.File {
 	return file
 }
 
-func NewArtifactFromFile(file *os.File, header *multipart.FileHeader) Artifact {
+func NewArtifactFromFile(
+	file *os.File,
+	header *multipart.FileHeader,
+	buildId string,
+) Artifact {
 	return Artifact{
-		Path: file.Name(),
-		Name: header.Filename,
-		Size: header.Size,
+		Path:    file.Name(),
+		Name:    header.Filename,
+		Size:    header.Size,
+		BuildId: buildId,
 	}
 }

@@ -68,7 +68,7 @@ func TestUploadFile(t *testing.T) {
 	handler.ServeHTTP(response, request)
 
 	assert.Equal(t, 200, response.Code)
-
 	assert.NoFileExists(t, "workspace/artifact.json", "Temporary file was deleted")
 	assert.FileExists(t, "workspace/processed.json", "File was processed")
+	assert.Containsf(t, response.Body.String(), "BuildId", "Response contains BuildId")
 }
