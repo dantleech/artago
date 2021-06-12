@@ -1,6 +1,8 @@
 Artag
 =====
 
+[![Build](https://github.com/dantleech/artago/actions/workflows/go.yml/badge.svg)](https://github.com/dantleech/artago/actions/workflows/go.yml)
+
 **Art**ifact**ag**gregator aggregates artifacts.
 
 This is my first Go project, so the code is even more awful than normal.
