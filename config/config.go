@@ -1,8 +1,7 @@
-package main
+package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -23,6 +22,7 @@ type Config struct {
 	Address       string `yaml:"address"`
 	WorkspacePath string `yaml:"workspacePath"`
 	Rules         []Rule `yaml:"rules"`
+	PublicDir     string `yaml:"publicDir"`
 }
 
 func LoadConfig(path string) Config {
@@ -30,8 +30,9 @@ func LoadConfig(path string) Config {
 		return loadConfig(path)
 	}
 
-	for _, path := range [2]string{"artag.yml", "artag.yml.dist"} {
+	for _, path := range [3]string{"artag.yml", "artag.yaml", "artag.yml.dist"} {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			log.Printf("Using config file `%s`", path)
 			return loadConfig(path)
 		}
 	}
@@ -45,6 +46,7 @@ func loadConfig(path string) Config {
 			Address:       ":8080",
 			WorkspacePath: "workspace",
 			Rules:         []Rule{},
+			PublicDir:     "public",
 		}
 	}
 
@@ -52,7 +54,7 @@ func loadConfig(path string) Config {
 		log.Fatal(fmt.Sprintf("Config file not found at: %s", path))
 	}
 
-	rawConfig, err := ioutil.ReadFile(path)
+	rawConfig, err := os.Open(path)
 
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +62,9 @@ func loadConfig(path string) Config {
 
 	config := Config{}
 
-	e := yaml.Unmarshal([]byte(rawConfig), &config)
+	d := yaml.NewDecoder(rawConfig)
+	d.SetStrict(true)
+	e := d.Decode(&config)
 	if e != nil {
 		log.Fatal(e.Error())
 	}

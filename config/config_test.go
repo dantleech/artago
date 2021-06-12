@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -8,13 +8,13 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	config := LoadConfig("testdata/config/example.yml")
+	config := LoadConfig("../testdata/config/example.yml")
 	assert.Equal(t, "127.0.0.1:9999", config.Address)
 }
 
 func TestLoadDefaultConfig(t *testing.T) {
 	wd, _ := os.Getwd()
-	os.Chdir("testdata/config")
+	os.Chdir("../testdata/config")
 	config := LoadConfig("")
 	assert.Equal(t, "127.0.0.1:7777", config.Address)
 	os.Chdir(wd)
