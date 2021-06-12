@@ -3,16 +3,16 @@ package action
 import (
 	"log"
 
+	art "github.com/dantleech/artag/artifact"
 	"github.com/dantleech/artag/config"
-	"github.com/dantleech/artag/processor"
 )
 
 type echoParams struct {
 	String string `yaml:"string"`
 }
 
-func EchoAction(artifact processor.Artifact, action config.Action) {
+func EchoAction(artifact art.Artifact, action config.Action) {
 	params := echoParams{}
-	processor.UnmarshallParams(action.Params, &params)
+	art.UnmarshallParams(action.Params, &params)
 	log.Println(params.String)
 }

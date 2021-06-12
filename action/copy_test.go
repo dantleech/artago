@@ -3,8 +3,8 @@ package action
 import (
 	"testing"
 
+	"github.com/dantleech/artag/artifact"
 	"github.com/dantleech/artag/config"
-	"github.com/dantleech/artag/processor"
 	"github.com/dantleech/artag/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +15,7 @@ func TestCopyFile(t *testing.T) {
 	}
 	workspace.Reset()
 	workspace.Put("test.json", []byte("foobar"))
-	artifact := processor.Artifact{
+	artifact := artifact.Artifact{
 		Path: workspace.Path("test.json"),
 		Size: 100,
 	}

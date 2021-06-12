@@ -6,17 +6,17 @@ import (
 	"os"
 	"path"
 
+	art "github.com/dantleech/artag/artifact"
 	"github.com/dantleech/artag/config"
-	"github.com/dantleech/artag/processor"
 )
 
 type copyParams struct {
 	Destination string `yaml:"destination"`
 }
 
-func CopyAction(artifact processor.Artifact, action config.Action) {
+func CopyAction(artifact art.Artifact, action config.Action) {
 	params := copyParams{}
-	processor.UnmarshallParams(action.Params, &params)
+	art.UnmarshallParams(action.Params, &params)
 	ensureDirectoryExists(params.Destination)
 
 	df, err := os.Create(params.Destination)

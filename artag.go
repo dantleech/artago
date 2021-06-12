@@ -9,8 +9,8 @@ import (
 	"path"
 
 	"github.com/dantleech/artag/action"
+	"github.com/dantleech/artag/artifact"
 	"github.com/dantleech/artag/config"
-	"github.com/dantleech/artag/processor"
 )
 
 func main() {
@@ -78,18 +78,19 @@ func (a application) artifactUploadHandler(response http.ResponseWriter, request
 			log.Fatalf("Could not copy file: %s", err)
 		}
 
-		p := processor.Processor{
+		p := artifact.Processor{
 			Rules: a.config.Rules,
-			Actions: map[string]processor.ActionHandler{
+			Actions: map[string]artifact.ActionHandler{
 				"copy": action.CopyAction,
 			},
 		}
 
-		artifact := processor.NewArtifactFromFile(destFile, header)
+		artifact := artifact.NewArtifactFromFile(destFile, header)
 		log.Printf("Processing file `%s` (%s)", destFilePath, artifact.Name)
 		destFile.Close()
 		p.Process(artifact)
 		os.Remove(destFilePath)
 		file.Close()
+		log.Printf("Processed: %s", artifact.Name)
 	}
 }

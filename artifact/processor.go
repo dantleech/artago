@@ -1,9 +1,7 @@
-package processor
+package artifact
 
 import (
 	"log"
-	"mime/multipart"
-	"os"
 
 	"github.com/antonmedv/expr"
 	config "github.com/dantleech/artag/config"
@@ -16,29 +14,6 @@ type Processor struct {
 }
 
 type ActionHandler func(Artifact, config.Action)
-
-type Artifact struct {
-	Path string
-	Name string
-	Size int64
-}
-
-func (a Artifact) OpenFile() *os.File {
-	file, err := os.Open(a.Path)
-	if err != nil {
-		log.Fatalf("Could not open artifact file `%s`", a.Path)
-	}
-
-	return file
-}
-
-func NewArtifactFromFile(file *os.File, header *multipart.FileHeader) Artifact {
-	return Artifact{
-		Path: file.Name(),
-		Name: header.Filename,
-		Size: header.Size,
-	}
-}
 
 func isRuleSatisfied(rule config.Rule, artifact Artifact) bool {
 	env := map[string]interface{}{
@@ -60,7 +35,7 @@ func isRuleSatisfied(rule config.Rule, artifact Artifact) bool {
 func (p Processor) Process(artifact Artifact) {
 	for _, rule := range p.Rules {
 		if isRuleSatisfied(rule, artifact) {
-			log.Printf("Applying rule `%s`", rule.Predicate)
+			log.Printf("...applying rule `%s`", rule.Predicate)
 			p.applyActions(artifact, rule.Actions)
 		}
 	}
@@ -77,7 +52,7 @@ func (p Processor) applyAction(artifact Artifact, action config.Action) {
 		log.Fatalf("Unknown action type `%v`,", action.Type)
 	}
 
-	log.Printf("Applying action `%s`", action.Type)
+	log.Printf("...applying action `%s` with params `%s`", action.Type, action.Params)
 	handler := p.Actions[action.Type]
 	handler(artifact, action)
 }
