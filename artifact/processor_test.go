@@ -51,7 +51,6 @@ func (ta *TestAction) DoSomethingAction(artifact Artifact, action config.Action)
 
 func TestResolveArtifactParameter(t *testing.T) {
 	assert.Equal(t, "foobar", ResolveArtifactParameter(Artifact{}, "foobar"))
-
 	assert.Equal(t, "-- foobar --", ResolveArtifactParameter(Artifact{
 		Name: "foobar",
 	}, "-- %artifact.Name% --"))

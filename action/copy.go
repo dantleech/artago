@@ -17,12 +17,13 @@ type copyParams struct {
 func CopyAction(artifact art.Artifact, action config.Action) {
 	params := copyParams{}
 	art.UnmarshallParams(action.Params, &params)
-	ensureDirectoryExists(params.Destination)
+	dest := art.ResolveArtifactParameter(artifact, params.Destination)
+	ensureDirectoryExists(dest)
 
-	df, err := os.Create(params.Destination)
+	df, err := os.Create(dest)
 
 	if err != nil {
-		panic(fmt.Sprintf("Could not create file `%v`: %v", params.Destination, err))
+		panic(fmt.Sprintf("Could not create file `%v`: %v", dest, err))
 	}
 
 	defer df.Close()

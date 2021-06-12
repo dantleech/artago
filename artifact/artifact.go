@@ -7,9 +7,10 @@ import (
 )
 
 type Artifact struct {
-	Path string
-	Name string
-	Size int64
+	BuildId string
+	Path    string
+	Name    string
+	Size    int64
 }
 
 func (a Artifact) OpenFile() *os.File {
