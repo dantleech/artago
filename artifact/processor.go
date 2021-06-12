@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/antonmedv/expr"
-	config "github.com/dantleech/artag/config"
+	config "github.com/dantleech/artago/config"
 	"gopkg.in/yaml.v2"
 )
 

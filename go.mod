@@ -1,4 +1,4 @@
-module github.com/dantleech/artag
+module github.com/dantleech/artago
 
 go 1.15
 

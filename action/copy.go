@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
-	art "github.com/dantleech/artag/artifact"
-	"github.com/dantleech/artag/config"
+	art "github.com/dantleech/artago/artifact"
+	"github.com/dantleech/artago/config"
 )
 
 type copyParams struct {

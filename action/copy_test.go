@@ -3,9 +3,9 @@ package action
 import (
 	"testing"
 
-	"github.com/dantleech/artag/artifact"
-	"github.com/dantleech/artag/config"
-	"github.com/dantleech/artag/test"
+	"github.com/dantleech/artago/artifact"
+	"github.com/dantleech/artago/config"
+	"github.com/dantleech/artago/test"
 	"github.com/stretchr/testify/assert"
 )
 
