@@ -11,7 +11,7 @@ Installation
 Download this and build it:
 
 ```
-$ git clone git@github.com/dantleech/artag
+$ git clone git@github.com/dantleech/artago
 ```
 
 ```
@@ -21,7 +21,7 @@ $ go build
 Usage
 -----
 
-Create configuration file `artag.yml` in a new directory:
+Create configuration file `artago.yml` in a new directory:
 
 ```yaml
 address: 127.0.0.1:8080
@@ -44,7 +44,7 @@ rules:
 Run the server:
 
 ```
-$ artag
+$ artago
 ```
 
 Use CuRL to send an artifact:

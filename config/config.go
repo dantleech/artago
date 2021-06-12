@@ -30,7 +30,7 @@ func LoadConfig(path string) Config {
 		return loadConfig(path)
 	}
 
-	for _, path := range [3]string{"artag.yml", "artag.yaml", "artag.yml.dist"} {
+	for _, path := range [3]string{"artago.yml", "artago.yaml", "artago.yml.dist"} {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
 			log.Printf("Using config file `%s`", path)
 			return loadConfig(path)
