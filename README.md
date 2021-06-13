@@ -4,7 +4,7 @@ Artago
 [![Build](https://github.com/dantleech/artago/actions/workflows/go.yml/badge.svg)](https://github.com/dantleech/artago/actions/workflows/go.yml)
 
 **Art**ifact**ag**gogeregator aggregates artifacts - you `POST` build artifacts
-to it and you configure what should be done with the artifacts. Artag provides
+to it and you configure what should be done with the artifacts. Artago provides
 a web server to serve the artifacts.
 
 It's an artifact server. It serves artifacts.
@@ -56,7 +56,7 @@ $ artago
 Use CuRL to send an artifact (or artifacts):
 
 ```
-$ curl -XPOST -F "data=@/home/daniel/www/phpbench/phpbench/.phpbench/html/index.html" http://localhost:8080/artifact/upload
+$ curl -XPOST -F "file1=@/home/daniel/www/phpbench/phpbench/.phpbench/html/index.html" http://localhost:8080/artifact/upload
 ```
 
 You will see a response:
@@ -77,12 +77,14 @@ You can specify special headers to
 
 ### BuildId
 
-By default the BuildId will default to the current date (YYY-MM-DD H:i:s). If
-you may want to override this to correspond with your CI servers build ID:
+By default the BuildId will default to the current date (YYY-MM-DD H:i:s).
+You may want to override this to correspond with your CI servers build ID:
 
 ```
 $ curl  -H"BuildId:123456" // ...
 ```
+
+It is subsequently available in expressions via. `artifact.BuildId`.
 
 Configuration
 -------------
@@ -173,5 +175,5 @@ This will add a `links` _result_ in the HTTP response, in this case:
 }
 ```
 
-As with copy, you can embed an expressoin in the `template` with
+As with copy, you can embed an expression in the `template` with
 `%myExpression%`.
