@@ -13,6 +13,7 @@ import (
 	"github.com/dantleech/artago/action"
 	"github.com/dantleech/artago/artifact"
 	"github.com/dantleech/artago/config"
+	"github.com/imdario/mergo"
 )
 
 func main() {
@@ -52,6 +53,8 @@ func (a application) Application(response http.ResponseWriter, request *http.Req
 
 func (a application) artifactUploadHandler(response http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(32 << 20)
+	buildId := resolveBuildId(*request)
+	results := map[string]map[string]interface{}{}
 
 	for fileName := range request.MultipartForm.File {
 		file, header, err := request.FormFile(fileName)
@@ -88,19 +91,21 @@ func (a application) artifactUploadHandler(response http.ResponseWriter, request
 			},
 		}
 
-		artifact := artifact.NewArtifactFromFile(destFile, header, resolveBuildId(*request))
+		artifact := artifact.NewArtifactFromFile(destFile, header, buildId)
 		log.Printf("Processing file `%s` (%s)", destFilePath, artifact.Name)
 		destFile.Close()
-		results := p.Process(artifact)
+
+		mergo.Merge(&results, p.Process(artifact))
+
 		os.Remove(destFilePath)
 		file.Close()
 		log.Printf("Processed: %s", artifact.Name)
 		response.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(response).Encode(UploadResponse{
-			BuildId: artifact.BuildId,
-			Results: results,
-		})
 	}
+	json.NewEncoder(response).Encode(UploadResponse{
+		BuildId: buildId,
+		Results: results,
+	})
 }
 
 type UploadResponse struct {
