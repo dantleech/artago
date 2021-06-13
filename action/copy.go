@@ -14,7 +14,7 @@ type copyParams struct {
 	Destination string `yaml:"destination"`
 }
 
-func CopyAction(artifact art.Artifact, action config.Action) {
+func CopyAction(artifact art.Artifact, action config.Action) art.ActionResult {
 	params := copyParams{}
 	art.UnmarshallParams(action.Params, &params)
 	dest := art.ResolveArtifactParameter(artifact, params.Destination)
@@ -31,6 +31,8 @@ func CopyAction(artifact art.Artifact, action config.Action) {
 	artifactFile := artifact.OpenFile()
 	io.Copy(df, artifactFile)
 	artifactFile.Close()
+
+	return art.ActionResult{}
 }
 
 func ensureDirectoryExists(filePath string) {
