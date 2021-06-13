@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -22,7 +23,7 @@ func createWorkspace() test.Workspace {
 	return workspace
 }
 
-func initialize(w test.Workspace, c config.Config) (*http.Request, *httptest.ResponseRecorder, application) {
+func initialize(w test.Workspace, c config.Config) (*httptest.ResponseRecorder, application) {
 	defaultConfig := config.Config{
 		WorkspacePath: w.Path("/"),
 	}
@@ -36,15 +37,17 @@ func initialize(w test.Workspace, c config.Config) (*http.Request, *httptest.Res
 		config: defaultConfig,
 	}
 	response := httptest.NewRecorder()
-	request := createRequest()
 
-	return request, response, application
+	return response, application
 }
 
 func TestUploadFileAndApplyRule(t *testing.T) {
 
+	request := createRequest(map[string]string{
+		"file1": "testdata/json_artifact.json",
+	})
 	workspace := createWorkspace()
-	request, response, application := initialize(workspace, config.Config{
+	response, application := initialize(workspace, config.Config{
 		Rules: []config.Rule{
 			{
 				Predicate: "true",
@@ -71,40 +74,58 @@ func TestUploadFileAndApplyRule(t *testing.T) {
 
 func TestBuildIdHeader(t *testing.T) {
 	workspace := createWorkspace()
-	request, response, application := initialize(workspace, config.Config{})
+	request := createRequest(map[string]string{
+		"file1": "testdata/json_artifact.json",
+	})
+	response, application := initialize(workspace, config.Config{})
 
 	request.Header.Set("BuildId", "ABCDE")
 
 	handler := http.HandlerFunc(application.Application)
 	handler.ServeHTTP(response, request)
 
-	assert.JSONEq(t, `{"BuildId": "ABCDE"}`, response.Body.String())
+	assert.JSONEq(t, `{"BuildId": "ABCDE", "Results": {}}`, response.Body.String())
 }
 
-func createRequest() *http.Request {
+func TestUploadMultipleFiles(t *testing.T) {
+	workspace := createWorkspace()
+	request := createRequest(map[string]string{
+		"file1": "testdata/json_artifact.json",
+		"file2": "testdata/json_artifact.json",
+		"file3": "testdata/json_artifact.json",
+	})
+	response, application := initialize(workspace, config.Config{})
+	request.Header.Set("BuildId", "ABCDE")
+
+	handler := http.HandlerFunc(application.Application)
+	handler.ServeHTTP(response, request)
+
+	log.Printf("%v", response.Body.String())
+	assert.JSONEq(t, `{"BuildId": "ABCDE", "Results": {}}`, response.Body.String())
+}
+
+func createRequest(files map[string]string) *http.Request {
 	pr, pw := io.Pipe()
-
-	body, err := ioutil.ReadFile("testdata/json_artifact.json")
-
-	if err != nil {
-		panic(err)
-	}
+	request := httptest.NewRequest("POST", "/artifact/upload", pr)
 
 	mWriter := multipart.NewWriter(pw)
-
-	// Why is the go function required here??
 	go func() {
 		defer mWriter.Close()
+		for fieldName, path := range files {
+			body, err := ioutil.ReadFile(path)
 
-		part, err := mWriter.CreateFormFile("artifact.json", "testdata/json_artifact.json")
-		part.Write(body)
+			if err != nil {
+				panic(err)
+			}
 
-		if err != nil {
-			panic(err)
+			part, err := mWriter.CreateFormFile(fieldName, path)
+			part.Write(body)
+
+			if err != nil {
+				panic(err)
+			}
 		}
 	}()
-
-	request := httptest.NewRequest("POST", "/artifact/upload", pr)
 	request.Header.Add("Content-Type", mWriter.FormDataContentType())
 
 	return request

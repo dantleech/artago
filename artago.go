@@ -83,26 +83,29 @@ func (a application) artifactUploadHandler(response http.ResponseWriter, request
 		p := artifact.Processor{
 			Rules: a.config.Rules,
 			Actions: map[string]artifact.ActionHandler{
-				"copy": action.CopyAction,
+				"copy":        action.CopyAction,
+				"publishLink": action.PublishLinkAction,
 			},
 		}
 
 		artifact := artifact.NewArtifactFromFile(destFile, header, resolveBuildId(*request))
 		log.Printf("Processing file `%s` (%s)", destFilePath, artifact.Name)
 		destFile.Close()
-		p.Process(artifact)
+		results := p.Process(artifact)
 		os.Remove(destFilePath)
 		file.Close()
 		log.Printf("Processed: %s", artifact.Name)
 		response.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(response).Encode(UploadResponse{
 			BuildId: artifact.BuildId,
+			Results: results,
 		})
 	}
 }
 
 type UploadResponse struct {
 	BuildId string
+	Results map[string]map[string]interface{}
 }
 
 func resolveBuildId(request http.Request) string {
