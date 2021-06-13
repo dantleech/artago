@@ -87,7 +87,7 @@ func (a application) artifactUploadHandler(response http.ResponseWriter, request
 			},
 		}
 
-		artifact := artifact.NewArtifactFromFile(destFile, header, resolveBuildId())
+		artifact := artifact.NewArtifactFromFile(destFile, header, resolveBuildId(*request))
 		log.Printf("Processing file `%s` (%s)", destFilePath, artifact.Name)
 		destFile.Close()
 		p.Process(artifact)
@@ -105,7 +105,14 @@ type UploadResponse struct {
 	BuildId string
 }
 
-func resolveBuildId() string {
+func resolveBuildId(request http.Request) string {
 	date := time.Now()
+
+	buildId := request.Header.Get("BuildId")
+
+	if "" != buildId {
+		return buildId
+	}
+
 	return date.Format("20060102-150405")
 }
